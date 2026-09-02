@@ -3,11 +3,12 @@
 
 import os
 import pdb
-import sys
 import logging
 from typing import Optional
 import uvicorn
+from datetime import datetime
 from fastapi import FastAPI, Query
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from setup import setup
 from endpoints import NewsEndpoint
@@ -25,6 +26,8 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+
+USE_TEST_DATA = os.getenv("USE_TEST_DATA", "False") == "True"
 
 NEWS_API_KEY = os.getenv("API_KEY")
 
@@ -58,7 +61,7 @@ setup(news_endpoint, database)
 @app.get("/top-stories")
 def get_top_stories():
 
-    if sys.argv[1] == "True":
+    if USE_TEST_DATA:
         endpoint_result = load_test_data("top-stories.json")
     else:
         endpoint_result = news_endpoint.get_top_stories()
@@ -79,14 +82,18 @@ def get_top_stories():
 
     return formatted_headlines
 
+@app.get("/")
+def index():
+    return FileResponse("index.html")
+
 @app.get("/search")
 def get_search_results(
                 key_words: str = Query(...),
                 sources: Optional[str] = Query(None),
                 domains: Optional[str] = Query(None),
                 nodomains: Optional[str] = Query(None),
-                oldest: Optional[str] = Query(None),
-                newest: Optional[str] = Query(None),
+                oldest: Optional[datetime] = Query(None),
+                newest: Optional[datetime] = Query(None),
                 language: Optional[str] = Query(None),
                 page_number: int = Query(1, ge=1),
                 page_size: int = Query(20, ge=1, le=100)):
@@ -96,7 +103,7 @@ def get_search_results(
                                         sources, domains, nodomains,
                                         oldest, newest, language)
 
-    if sys.argv[1] == "True":
+    if USE_TEST_DATA:
         api_results = load_test_data("sports-results.json")
     else:
         api_results = news_endpoint.search(search_params)
