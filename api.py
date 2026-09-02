@@ -2,7 +2,6 @@
 """ FastAPI endpoints for our application. """
 
 import os
-import pdb
 import logging
 from typing import Optional
 import uvicorn
@@ -52,9 +51,6 @@ app = FastAPI(title="News Aggregator")
 
 news_endpoint = NewsEndpoint(NEWS_API_KEY)
 database = DB()
-
-# TODO for debugging only!
-database.clear_database()
 
 setup(news_endpoint, database)
 

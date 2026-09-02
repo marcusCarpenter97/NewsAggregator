@@ -1,6 +1,5 @@
 """ Module for the database class. """
 import os
-import pdb
 import logging
 import psycopg
 from psycopg_pool import ConnectionPool

@@ -76,4 +76,4 @@ class NewsEndpoint:
                 params['page'] += 1
             else:
                 logging.warning("Error fetching data from endpoint: %s - %s", response.status_code, response.reason)
-                return results
+            return results
