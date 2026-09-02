@@ -1,4 +1,5 @@
 import json
+import urllib3
 import logging
 import requests
 
@@ -14,7 +15,8 @@ class NewsEndpoint:
 
         target_url = f"{BASE_URL}{endpoint}?country={locale}"
 
-        response = requests.get(target_url, headers = {"Authorization": self.api_key}, timeout=5)
+        url = urllib3.util.parse_url(target_url)
+        response = requests.get(url, headers = {"Authorization": self.api_key}, timeout=5)
 
         if response.status_code == 200:
             return json.loads(response.text).get("articles")[:n]
@@ -25,7 +27,8 @@ class NewsEndpoint:
 
         target_url = f"{BASE_URL}{endpoint}"
 
-        response = requests.get(target_url, headers = {"Authorization": self.api_key}, timeout=5)
+        url = urllib3.util.parse_url(target_url)
+        response = requests.get(url, headers = {"Authorization": self.api_key}, timeout=5)
 
         if response.status_code == 200:
             return json.loads(response.text).get("sources", [])
@@ -37,34 +40,35 @@ class NewsEndpoint:
 
         results = []
 
-        url = f"{BASE_URL}everything"
+        target_url = f"{BASE_URL}everything"
 
         if len(search_params.key_words) > max_len:
             return "Key words parameter is too long, it must be shorter than 500 characters."
 
-        url = f"{url}?q={search_params.key_words}"
+        target_url = f"{target_url}?q={search_params.key_words}"
 
         if search_params.sources and len(search_params.sources.split(',')) <= 20:
-            url = f"{url}&sources={search_params.sources}"
+            target_url = f"{target_url}&sources={search_params.sources}"
 
         if search_params.domains:
-            url = f"{url}&domains={search_params.domains}"
+            target_url = f"{target_url}&domains={search_params.domains}"
 
         if search_params.nodomains:
-            url = f"{url}&excludeDomains={search_params.nodomains}"
+            target_url = f"{target_url}&excludeDomains={search_params.nodomains}"
 
         if search_params.oldest:
-            url = f"{url}&from={search_params.oldest}"
+            target_url = f"{target_url}&from={search_params.oldest}"
 
         if search_params.newest:
-            url = f"{url}&to={search_params.newest}"
+            target_url = f"{target_url}&to={search_params.newest}"
 
         if search_params.language:
-            url = f"{url}&language={search_params.language}"
+            target_url = f"{target_url}&language={search_params.language}"
 
-        url = f"{url}&sortBy={sortby}&pageSize={search_params.page_size}"
+        target_url = f"{target_url}&sortBy={sortby}&pageSize={search_params.page_size}"
 
         while True:
+            url = urllib3.util.parse_url(target_url)
             response = requests.get(url, params = params, headers = {"Authorization": self.api_key}, timeout=5)
 
             if response.status_code == 200:
