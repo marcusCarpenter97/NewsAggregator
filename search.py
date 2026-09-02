@@ -12,13 +12,30 @@ def tokenize(query):
 
 def search_database_headlines(db, params):
 
+    sources = None
+    domains = None
+    nodomains = None
+    language = None
+
     tokens = tokenize(params.key_words)
 
     article_ids = [i[0] for i in db.search_tokens(tokens)]
 
     articles = db.retreive_from_dates(params.oldest, params.newest, article_ids)
 
-    selected_source_ids = db.filter_articles_by_sources(params.sources, params.domains, params.nodomains, params.language)
+    if params.sources:
+        sources = params.sources.split(",")
+
+    if params.domains:
+        domains = params.domains.split(",")
+
+    if params.nodomains:
+        nodomains = params.nodomains.split(",")
+
+    if params.language:
+        language = params.language.split(",")
+
+    selected_source_ids = db.filter_articles_by_sources(sources, domains, nodomains, language)
 
     if not selected_source_ids:
         return articles
