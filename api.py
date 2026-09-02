@@ -131,13 +131,12 @@ def get_search_results(
 
 @app.get("/sources")
 def get_sources():
-    database_result = database.get_sources()
-    if not database_result:
-        return "No available sources."
-    return database_result
+    return database.get_sources()
 
 @app.get("/headlines")
 def get_headlines():
+    if USE_TEST_DATA:
+        return load_test_data("sources.json")
     return database.get_headlines()
 
 if __name__ == "__main__":
