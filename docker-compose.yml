@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: news_aggregator
+      POSTGRES_USER: news_reader
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U news_reader -d news_aggregator"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://news_reader:123456@db:5432/news_aggregator
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:

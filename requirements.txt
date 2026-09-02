@@ -1,0 +1,8 @@
+psycopg[binary]
+psycopg[pool]
+python-dotenv
+unidecode
+pydantic
+requests
+uvicorn
+fastapi
